@@ -56,10 +56,11 @@ public class ServerGui extends JFrame {
 			listModel.addElement(command);
 		}
 		commandList.setModel(listModel);
-
+		JScrollPane paneArounthepanel = new JScrollPane();
 		final JPanel thepanel = new JPanel();
+		paneArounthepanel.setViewportView(thepanel);
 		thepanel.setBorder(new TitledBorder("Command: "));
-		jsPlitPanel.setRightComponent(thepanel);
+		jsPlitPanel.setRightComponent(paneArounthepanel);
 		
 		thepanel.setLayout(new GridBagLayout());
 
