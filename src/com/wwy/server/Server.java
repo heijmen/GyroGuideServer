@@ -7,6 +7,10 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import sun.security.krb5.internal.crypto.CksumType;
+
+import com.wwy.server.gui.ServerGui;
+
 public class Server {
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
@@ -14,14 +18,13 @@ public class Server {
 	private BufferedReader in;
 	private static PrintWriter out;
 
-	public Server() {
+	public Server(ServerGui gui) {
 		try {
 			serverSocket = new ServerSocket(1337);
 			clientSocket = serverSocket.accept();
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-
+			gui.onConnectedToClient(clientSocket.getInetAddress().getHostAddress().toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

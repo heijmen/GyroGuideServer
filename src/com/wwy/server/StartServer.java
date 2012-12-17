@@ -1,5 +1,12 @@
 package com.wwy.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -11,17 +18,18 @@ public class StartServer {
 	
 	static Server server;
 
-	public static void main(String[] s) throws UnsupportedLookAndFeelException {
+	public static void main(String[] s) throws UnsupportedLookAndFeelException, MalformedURLException, IOException {
 		
 		
 //		Thread th2 = new Thread(serverr);
 //		th2.start();
-		Thread th = new Thread(gui);
-		th.start();
-		server = new Server();
+		Server	server = null;
 		
+		UIManager.setLookAndFeel(new NimbusLookAndFeel());;
 		
-	
+		ServerGui gui = new ServerGui(server);
+		gui.setVisible(true);
+		server = new Server(gui);
 	}
 	
 	static Runnable gui = new Runnable() {

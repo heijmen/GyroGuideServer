@@ -6,22 +6,26 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.NumberFormatter;
 
 import com.wwy.server.Message;
 import com.wwy.server.MessageAssembler;
@@ -35,7 +39,7 @@ public class ServerGui extends JFrame {
 	private Server server;
 	private Message message;
 	
-	private List<JTextField> fields = new ArrayList<JTextField>();
+	private List<JSpinner> fields = new ArrayList<JSpinner>();
 	
 	public ServerGui(final Server server) {
 		this.server = server; 
@@ -80,12 +84,14 @@ public class ServerGui extends JFrame {
 				thepanel.add(namelabel, gc);
 				
 //				thepanel.add(new JLabel());
+				
+				
 				int row = 0;
 				for(String param : selectedCommand.params) {
 					gc = new GridBagConstraints();
 					row++;
 					JLabel l = new JLabel(param);
-					JTextField f = new JTextField();
+					JSpinner f = new JSpinner();
 					gc.gridx = 0;
 					gc.gridy = row;
 					thepanel.add(l, gc);
@@ -94,6 +100,10 @@ public class ServerGui extends JFrame {
 					gc.gridy = row;
 					gc.fill = GridBagConstraints.HORIZONTAL;
 					thepanel.add(f, gc);
+					
+					
+					JFormattedTextField txt = ((JSpinner.NumberEditor) f.getEditor()).getTextField();
+					((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
 					fields.add(f);
 				}
 				gc = new GridBagConstraints();
@@ -112,8 +122,9 @@ public class ServerGui extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] params = new int[fields.size()];
 				int i = 0;
-				for(JTextField jTextField : fields) {
-					params[i] = Integer.parseInt(jTextField.getText());
+				for(JSpinner jTextField : fields) {
+					
+					params[i] = Integer.parseInt(""+jTextField.getValue());
 					i++;
 				}
 				Message m = new Message(selectedCommand.command, params); //send this to le server
@@ -122,7 +133,12 @@ public class ServerGui extends JFrame {
 				th.start();
 			}
 		});
-		
+		try {
+			this.setTitle(InetAddress.getLocalHost().toString() + ", Port: 1337");
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	
@@ -137,6 +153,13 @@ public class ServerGui extends JFrame {
 	public synchronized void sendMessage(Message message) {
 		Server.sendMessage(message);
 	}
-	
+	public void onConnectedToClient(String clientIp) {
+		try {
+			this.setTitle(InetAddress.getLocalHost().toString() + ", Port: 1337; Client: " + clientIp);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 }
