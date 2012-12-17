@@ -60,7 +60,7 @@ public class ClientTest {
 			if(in != null) {
 				String si = in.readLine();
 				if(si != null && !si.equals("")) {
-					JOptionPane.showMessageDialog(null, in.readLine());
+					JOptionPane.showMessageDialog(null, si);
 				} 
 			}
 		}
