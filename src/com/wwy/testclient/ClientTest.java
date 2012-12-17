@@ -4,26 +4,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
-import com.sun.corba.se.impl.orbutil.ObjectWriter;
-import com.wwy.server.Message;
-import com.wwy.server.MessageAssembler;
+import javax.swing.JOptionPane;
 
 public class ClientTest {
 	private static PrintWriter out;
 	private static BufferedReader in;
 	public static void main(String[] s) throws Exception {
+		
+		String name = JOptionPane.showInputDialog(null, "Geef ipadress zoals 15.89.34654364");
 		PrintWriter out2 = null;
 		BufferedReader in2 = null;
 
 		out = out2;
 		in = in2;
-			InetAddress address = InetAddress.getByName("localhost");
-			System.out.println(address);
-			echoSocket = new Socket(address, 1337);
+		//	InetAddress address = InetAddress.getByName(name);
+	//		System.out.println(address);
+			echoSocket = new Socket(name, 1337);
 
 			//     Message m = new Message(1, new int[] {1, 2 , 3});
 			//       String st = MessageAssembler.assembleMessageJson(m);
@@ -33,9 +31,6 @@ public class ClientTest {
 					echoSocket.getInputStream()));
 			Thread Listentothis = new Thread(listenToMessages);
 			Listentothis.start();
-			
-
-			
 		
 	}
 	
@@ -65,7 +60,7 @@ public class ClientTest {
 			if(in != null) {
 				String si = in.readLine();
 				if(si != null && !si.equals("")) {
-					System.out.println(in.readLine());
+					JOptionPane.showMessageDialog(null, in.readLine());
 				} 
 			}
 		}
