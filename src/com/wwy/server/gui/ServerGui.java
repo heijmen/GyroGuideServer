@@ -1,31 +1,14 @@
 package com.wwy.server.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.text.NumberFormatter;
 
 import com.wwy.server.Message;
 import com.wwy.server.MessageAssembler;
@@ -33,134 +16,170 @@ import com.wwy.server.Server;
 
 public class ServerGui extends JFrame {
 
-	private Command selectedCommand;
-	private static final String nameString = "<html><b>Geselecteerde command: %s</b></html>";
-	private GridBagConstraints gc;
-	private Server server;
+	private static final long serialVersionUID = 1L;
 	private Message message;
-	
-	private List<JSpinner> fields = new ArrayList<JSpinner>();
-	
-	public ServerGui(final Server server) {
-		this.server = server; 
-		JSplitPane jsPlitPanel = new JSplitPane();
-		this.add(jsPlitPanel, BorderLayout.CENTER);
-		final JScrollPane commandScrollPane = new JScrollPane();
-		commandScrollPane.setBorder(new TitledBorder("CommandList"));
-		jsPlitPanel.setLeftComponent(commandScrollPane);
-		this.setSize(new Dimension(800, 600));
-		final JList<Command> commandList = new JList<Command>();
-		commandScrollPane.setViewportView(commandList);
-		DefaultListModel<Command> listModel = new DefaultListModel<Command>();
-		for(Command command : Command.values()) {
-			listModel.addElement(command);
-		}
-		commandList.setModel(listModel);
-		JScrollPane paneArounthepanel = new JScrollPane();
-		final JPanel thepanel = new JPanel();
-		paneArounthepanel.setViewportView(thepanel);
-		thepanel.setBorder(new TitledBorder("Command: "));
-		jsPlitPanel.setRightComponent(paneArounthepanel);
-		
-		thepanel.setLayout(new GridBagLayout());
 
-		final JButton bj = new JButton("Verstuur");
-		
-		
-		commandList.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent arg0) {
-				if(arg0.getValueIsAdjusting()) 
-					return;
-				fields.clear();
-				thepanel.removeAll();
-				selectedCommand = commandList.getSelectedValue();
-				thepanel.setBorder(new TitledBorder("Command: " + selectedCommand.name));
-				final JLabel namelabel = new JLabel(String.format(nameString, selectedCommand.name));
-				gc = new GridBagConstraints();
-				gc.gridx = 0;
-				gc.gridy = 0;
-				gc.gridwidth = 2;
-				
-				thepanel.add(namelabel, gc);
-				
-//				thepanel.add(new JLabel());
-				
-				
-				int row = 0;
-				for(String param : selectedCommand.params) {
-					gc = new GridBagConstraints();
-					row++;
-					JLabel l = new JLabel(param);
-					JSpinner f = new JSpinner();
-					gc.gridx = 0;
-					gc.gridy = row;
-					thepanel.add(l, gc);
-					gc = new GridBagConstraints();
-					gc.gridx = 1;
-					gc.gridy = row;
-					gc.fill = GridBagConstraints.HORIZONTAL;
-					thepanel.add(f, gc);
-					
-					
-					JFormattedTextField txt = ((JSpinner.NumberEditor) f.getEditor()).getTextField();
-					((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
-					fields.add(f);
-				}
-				gc = new GridBagConstraints();
-				gc.gridx = 0;
-				gc.gridy = row+ 1;
-				gc.gridwidth = 2;
-				gc.fill = GridBagConstraints.HORIZONTAL;
-				thepanel.add(bj, gc);
-				thepanel.revalidate();
-				
-			}
-		});
-		
-		bj.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				int[] params = new int[fields.size()];
-				int i = 0;
-				for(JSpinner jTextField : fields) {
-					
-					params[i] = Integer.parseInt(""+jTextField.getValue());
-					i++;
-				}
-				Message m = new Message(selectedCommand.command, params); //send this to le server
-				message = m;
-				Thread th = new Thread(sendMessageRunnable);
-				th.start();
-			}
-		});
+	public ServerGui() {
 		try {
+			this.setLayout(new GridLayout(0,2, 5, 5));
+			JButton b0 = new JButton("BackupStartup");
+			b0.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					message = new Message(0x3, new int[] {150});
+					Server.sendMessage(message);
+				}
+			});
+			
+			this.add(b0);
+			
+			JButton b1 = new JButton("Actie 1 = Scannen groenkitlampje, wiggle, hogetoeren");
+			b1.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						message = new Message(0x7, new int[] {1});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0x5, new int[] {2, 150});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0x2, new int[] {150});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0x3, new int[] {150});
+						Server.sendMessage(message);
+					} catch (InterruptedException e) {
+						JOptionPane.showMessageDialog(null, e.getMessage());
+					}
+				}
+			});
+			JButton b2 = new JButton("Actie 2 = progressbar rood daarma grpen");
+			b2.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						message = new Message(0xC, new int[] {0});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xC, new int[] {255/7});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xC, new int[] {255/7*2});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xC, new int[] {255/7*3});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xC, new int[] {255/7*4});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xC, new int[] {255/7*5});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xC, new int[] {255/7*6});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xC, new int[] {255});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xD, new int[] {255});
+						Server.sendMessage(message);
+					} catch (InterruptedException e) {
+						JOptionPane.showMessageDialog(null, e.getMessage());
+					}
+				}
+			});
+
+			JButton b3 = new JButton("Actie 3 = Lopen links rood richting");
+			b3.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						message = new Message(0x0, new int[] {175});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xA, new int[] {175});
+						Server.sendMessage(message);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			JButton b4 = new JButton("A4 Herrineringspunt aanmaken");
+			b4.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						message = new Message(0x6, new int[] {1});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0x8, new int[] {2});
+						Server.sendMessage(message);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			JButton b5 = new JButton("Actie 5 =  Richard Lopen -> naar rechts " );
+			b5.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						message = new Message(0x1, new int[] {254});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0xB, new int[] {254});
+						Server.sendMessage(message);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			JButton b6 = new JButton("Actie 6 =  Richard eindpunt" );
+			b6.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						message = new Message(0x9, new int[] {2});
+						Server.sendMessage(message);
+						Thread.sleep(500);
+						message = new Message(0x3, new int[] {100});
+						Server.sendMessage(message);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			this.add(b1);
+			this.add(b2);
+			this.add(b3);
+			this.add(b4);
+			this.add(b5);
+			this.add(b6);
+			this.setSize(800, 600);
+
 			this.setTitle(InetAddress.getLocalHost().toString() + ", Port: 1337");
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
-	
+
 	Runnable sendMessageRunnable = new Runnable() {
 		@Override
 		public void run() {
 			JOptionPane.showMessageDialog(null, MessageAssembler.assembleMessageJson(message));
-			sendMessage(message);
+			Server.sendMessage(message);
 		}
 	};
-	
-	public synchronized void sendMessage(Message message) {
-		Server.sendMessage(message);
-	}
+
 	public void onConnectedToClient(String clientIp) {
 		try {
 			this.setTitle(InetAddress.getLocalHost().toString() + ", Port: 1337; Client: " + clientIp);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 }
